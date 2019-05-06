@@ -5,11 +5,13 @@ import (
 
 // 表示するテキスト
 func GetMessage() string {
+    noTroubleMessage := "現在、遅延や運転の見合わせ等は発生していません。"
+
     // トラブルが発生している関東の路線を取得
     lineInfos := getTroubleLines()
     if (lineInfos == nil) {
         // トラブル無し
-        return ""
+        return noTroubleMessage
     }
 
     // 表示対象の路線を取得
@@ -33,6 +35,10 @@ func GetMessage() string {
         if (isDispLine) {
             message = message + tal.Name + " @ " + tal.Outline + "(" + tal.Details + ")" + "\n"
         }
+    }
+    if message == "" {
+        // 指定の路線でトラブル無し
+        return noTroubleMessage
     }
     return message
 }
