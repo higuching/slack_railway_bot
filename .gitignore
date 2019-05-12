@@ -1,0 +1,5 @@
+# config 以下は対象外
+config/
+
+# .DS_Store は対象外
+.DS_Store
