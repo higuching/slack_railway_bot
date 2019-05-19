@@ -1,6 +1,6 @@
 # Railways Slack Bot Sample
 
-Slack Bot to obtain information on railways in the Kanto region.
+Slack Bot to obtain information on railroad in the Kanto region.
 
 # Configuration
 
