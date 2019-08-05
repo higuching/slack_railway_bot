@@ -1,73 +1,126 @@
 package app
 
 import (
+	"io/ioutil"
+	"log"
+	"regexp"
+	"strconv"
+
+	db "github.com/higuching/slack_bot/db"
+
 	"github.com/PuerkitoBio/goquery"
 	yaml "gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
-type targetLines struct {
+type RailWays struct {
+	data targetLinesInfo
+}
+
+type targetLinesInfo struct {
+	Url    string   `yaml:"url"`
 	Filter bool     `yaml:"filter"`
 	Lines  []string `yaml:"lines"`
 }
 
 type lineInfo struct {
+	Id      int
 	Name    string
 	Outline string
 	Details string
-	Uri     string
+	Url     string
 }
 
-const noTroubleMessage = "現在、遅延や運転の見合わせ等は発生していません。"
+// インスタンス化する
+func NewRailWays() *RailWays {
+	buf, err := ioutil.ReadFile("configs/railways.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 表示するテキスト
-func getMessage() string {
+	o := RailWays{}
+	err = yaml.Unmarshal(buf, &o.data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &o
+}
+
+// 路線情報のテキストを取得する
+func (o *RailWays) GetMessage() string {
+
+	if o.data.Filter == false {
+		// フィルター設定がOFFになっている
+		return "フィルター設定がOFFになっています"
+	}
+
+	if len(o.data.Lines) == 0 {
+		// 対象路線が設定されていない
+		return "通知対象の路線がOFFになっています"
+	}
+
+	message := ""
+
+	// DBインスタンス作成
+	db := db.NewRailways()
 
 	// トラブルが発生している関東の路線を取得
-	_url := "https://transit.yahoo.co.jp/traininfo/area/4/" // 関東の路線情報
-	troubleLines := getTroubleLines(_url)
+	troubleLines := getTroubleLines(o.data.Url)
 	if troubleLines == nil {
 		// トラブル無し
-		return noTroubleMessage
+		rs := db.GetAll()
+		if rs == nil {
+			return "現在、遅延や運転の見合わせ等は発生していません。"
+		}
+		for _, r := range rs {
+			// 登録済みの路線を解除する
+			message = message + r.NAME + "の遅延が解消しました。\n"
+		}
+		// 全レコードの削除
+		_ = db.DeleteAll()
+		return message
 	}
 
-	// 表示対象の路線を取得
-	targetLines, err := getTargetLines()
-	if err != nil {
-		panic(err)
-	}
-
-	var message string
+	// トラブっている路線情報を取得
 	for _, tal := range troubleLines {
-		if len(targetLines.Lines) == 0 || tal.containsLine(&targetLines) {
-			// フィルターなし or 対象路線に含まれる名前
-			message = message + tal.Name + " @ " + tal.Outline + "(" + tal.Details + ")" + "\n"
+		if !tal.containsLine(&o.data) {
+			// 対象路線に含まれる名前じゃない
+			continue
+		}
+		if db.Get(tal.Id) {
+			// レコードあるならすでに登録済み
+			continue
+		}
+		_ = db.Insert(tal.Id, tal.Name)
+		message = message + tal.Name + "で *" + tal.Outline + "* が発生しました。 " + tal.Url + "" + "\n"
+	}
+
+	// トラブルが解消した路線情報を取得
+	rs := db.GetAll()
+	if rs != nil {
+		for _, r := range rs {
+			isFind := false
+			for _, tal := range troubleLines {
+				if r.ID == tal.Id {
+					isFind = true
+				}
+			}
+			if isFind == false {
+				// 解消！
+				_ = db.Delete(r.ID)
+				message = message + r.NAME + "の遅延が解消しました。\n"
+			}
 		}
 	}
+
 	if message == "" {
 		// 指定の路線でトラブル無し
-		return noTroubleMessage
+		return "新規に遅延や運転の見合わせ等は発生していませんでした。"
 	}
 	return message
 }
 
-// 定義した情報の欲しい路線情報を取得
-func getTargetLines() (targetLines, error) {
-	buf, err := ioutil.ReadFile("configs/railways.yml")
-	if err != nil {
-		return targetLines{}, err
-	}
-
-	tl := targetLines{}
-	err = yaml.Unmarshal(buf, &tl)
-	if err != nil {
-		return targetLines{}, err
-	}
-	return tl, nil
-}
-
 // 必要な路線か判定
-func (l *lineInfo) containsLine(t *targetLines) bool {
+func (l *lineInfo) containsLine(t *targetLinesInfo) bool {
 	for _, name := range t.Lines {
 		if l.Name == name {
 			return true
@@ -88,11 +141,19 @@ func getTroubleLines(_url string) []lineInfo {
 		s.Children().Each(func(idx int, ss *goquery.Selection) {
 			if idx > 0 {
 				href, _ := ss.Children().Find("a").Attr("href")
+				// URLからIDを抽出
+				r := regexp.MustCompile(`[\d]+`)
+				slice := r.FindAllStringSubmatch(href, -1)
+				id, err2 := strconv.Atoi(slice[0][0])
+				if err2 != nil {
+					panic(err2)
+				}
 				li = append(li, lineInfo{
+					Id:      id,
 					Name:    ss.Children().Find("a").Text(),
 					Outline: ss.Children().Find("span.colTrouble").Text(),
 					Details: ss.Children().Next().Next().Text(),
-					Uri:     href,
+					Url:     href,
 				})
 			}
 		})

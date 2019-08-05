@@ -1,3 +1,4 @@
+url: "https://transit.yahoo.co.jp/traininfo/area/4/"
 filter: true
 lines:
   - "東京メトロ千代田線"

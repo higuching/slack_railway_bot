@@ -2,11 +2,13 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/nlopes/slack"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+
+	db "github.com/higuching/slack_bot/db"
+	"github.com/nlopes/slack"
 )
 
 type SlackJson struct {
@@ -15,7 +17,6 @@ type SlackJson struct {
 
 var botId string
 
-// func Run(api *slack.Client) int {
 func Run() {
 	token := getToken()
 	if token == "" {
@@ -31,7 +32,11 @@ func Run() {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.HelloEvent:
-				log.Print("Hello Event")
+				err := db.NewRailways().Create()
+				if err != nil {
+					panic(err)
+				}
+				log.Print("Database created.")
 
 			case *slack.ConnectedEvent:
 				botId = ev.Info.User.ID
@@ -40,8 +45,8 @@ func Run() {
 				if strings.HasPrefix(ev.Text, "<@"+botId+">") {
 					text := getText(ev.Text)
 					switch text {
-					case "運行状況":
-						message := getMessage()
+					case "遅延":
+						message := NewRailWays().GetMessage()
 						rtm.SendMessage(rtm.NewOutgoingMessage(message, ev.Channel))
 					case "help":
 						rtm.SendMessage(rtm.NewOutgoingMessage("Usage: 運行状況　関東圏の電車の運行状況を表示します。\n他の機能？ないよ。", ev.Channel))
