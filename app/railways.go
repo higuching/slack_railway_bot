@@ -50,12 +50,14 @@ func (o *RailWays) GetMessage() string {
 
 	if o.data.Filter == false {
 		// フィルター設定がOFFになっている
-		return "フィルター設定がOFFになっています"
+		//return "フィルター設定がOFFになっています"
+		return ""
 	}
 
 	if len(o.data.Lines) == 0 {
 		// 対象路線が設定されていない
-		return "通知対象の路線がOFFになっています"
+		//return "通知対象の路線がOFFになっています"
+		return ""
 	}
 
 	message := ""
@@ -69,7 +71,8 @@ func (o *RailWays) GetMessage() string {
 		// トラブル無し
 		rs := db.GetAll()
 		if rs == nil {
-			return "現在、遅延や運転の見合わせ等は発生していません。"
+			//return "現在、遅延や運転の見合わせ等は発生していません。"
+			return ""
 		}
 		for _, r := range rs {
 			// 登録済みの路線を解除する
@@ -114,7 +117,8 @@ func (o *RailWays) GetMessage() string {
 
 	if message == "" {
 		// 指定の路線でトラブル無し
-		return "新規に遅延や運転の見合わせ等は発生していませんでした。"
+		//return "新規に遅延や運転の見合わせ等は発生していませんでした。"
+		return ""
 	}
 	return message
 }

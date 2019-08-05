@@ -1,11 +1,14 @@
 package app
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	db "github.com/higuching/slack_bot/db"
 	"github.com/nlopes/slack"
@@ -18,6 +21,44 @@ type SlackJson struct {
 var botId string
 
 func Run() {
+	err := db.NewRailways().Create()
+	if err != nil {
+		panic(err)
+	}
+	log.Print("Database created.")
+	client := &http.Client{}
+	for {
+		name := "RailwaysBot"
+		text := NewRailWays().GetMessage()
+		channel := "#random"
+		if text != "" {
+
+			//jsonStr := `{"username":"` + name + `","text":"` + text + `"}`
+			jsonStr := `{"channel":"` + channel + `","username":"` + name + `","text":"` + text + `"}`
+
+			req, err := http.NewRequest(
+				"POST",
+				"https://hooks.slack.com/services/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",
+				bytes.NewBuffer([]byte(jsonStr)),
+			)
+			if err != nil {
+				panic(err)
+			}
+
+			req.Header.Set("content-type", "application/json")
+
+			resp, err := client.Do(req)
+			if err != nil {
+				panic(err)
+			}
+			defer resp.Body.Close()
+
+		}
+		time.Sleep(60 * time.Second)
+	}
+}
+
+func Run2() {
 	token := getToken()
 	if token == "" {
 		log.Fatal("void token")
