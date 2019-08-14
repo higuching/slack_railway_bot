@@ -20,7 +20,7 @@ type RailwaysDb struct {
 
 func NewRailways() *RailwaysDb {
 	// データベースのコネクションを開く
-	db, err := sql.Open("sqlite3", "./railways.db")
+	db, err := sql.Open("sqlite3", "/tmp/railways.db")
 	if err != nil {
 		panic(err)
 	}

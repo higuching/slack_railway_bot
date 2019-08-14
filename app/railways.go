@@ -30,7 +30,7 @@ type lineInfo struct {
 	Url     string
 }
 
-// インスタンス化する
+// NewRailWays Railwaysインスタンスを生成
 func NewRailWays() *RailWays {
 	buf, err := ioutil.ReadFile("configs/railways.yml")
 	if err != nil {
@@ -143,23 +143,24 @@ func getTroubleLines(_url string) []lineInfo {
 	li := []lineInfo{}
 	doc.Find("div.trouble > table > tbody").Each(func(_ int, s *goquery.Selection) {
 		s.Children().Each(func(idx int, ss *goquery.Selection) {
-			if idx > 0 {
-				href, _ := ss.Children().Find("a").Attr("href")
-				// URLからIDを抽出
-				r := regexp.MustCompile(`[\d]+`)
-				slice := r.FindAllStringSubmatch(href, -1)
-				id, err2 := strconv.Atoi(slice[0][0])
-				if err2 != nil {
-					panic(err2)
-				}
-				li = append(li, lineInfo{
-					Id:      id,
-					Name:    ss.Children().Find("a").Text(),
-					Outline: ss.Children().Find("span.colTrouble").Text(),
-					Details: ss.Children().Next().Next().Text(),
-					Url:     href,
-				})
+			if idx == 0 {
+				return
 			}
+			href, _ := ss.Children().Find("a").Attr("href")
+			// URLからIDを抽出
+			r := regexp.MustCompile(`[\d]+`)
+			slice := r.FindAllStringSubmatch(href, -1)
+			id, err2 := strconv.Atoi(slice[0][0])
+			if err2 != nil {
+				panic(err2)
+			}
+			li = append(li, lineInfo{
+				Id:      id,
+				Name:    ss.Children().Find("a").Text(),
+				Outline: ss.Children().Find("span.colTrouble").Text(),
+				Details: ss.Children().Next().Next().Text(),
+				Url:     href,
+			})
 		})
 	})
 	return li
