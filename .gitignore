@@ -1,5 +1,8 @@
 # config 以下は対象外
-config/
+configs/
+
+# bin 以下も対象外
+bin/
 
 # .DS_Store は対象外
 .DS_Store
