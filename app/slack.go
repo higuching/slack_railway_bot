@@ -2,38 +2,48 @@ package app
 
 import (
 	"bytes"
+	"io/ioutil"
 	"log"
 	"net/http"
 
 	db "github.com/higuching/slack_bot/db"
+	yaml "gopkg.in/yaml.v2"
 )
 
-type SlackJson struct {
-	Token string
+// slackの設定ファイル
+type slackConfig struct {
+	Url     string `yaml:"url"`
+	Channel string `yaml:"channel"`
+	Nmae    string `yaml:"name"`
 }
 
-var botId string
-
+// mainから呼ばれるコアとなる関数
 func Run() (string, error) {
+	// DBの準備
 	err := db.NewRailways().Create()
 	if err != nil {
 		return "", err
 	}
-	log.Print("Database created.")
-	name := "RailwaysBot"
-	text := NewRailWays().GetMessage()
-	channel := "#bot用"
-	if text == "" {
-		return "", nil
+	log.Print("Database is ready.")
+
+	// slackの設定読み込み
+	conf, err := getSlackConfig()
+	if err != nil {
+		return "", err
 	}
 
-	//jsonStr := `{"username":"` + name + `","text":"` + text + `"}`
-	jsonStr := `{"channel":"` + channel + `","username":"` + name + `","text":"` + text + `"}`
+	// POSTするテキストの取得
+	text := getPostText(conf.Nmae, conf.Channel)
+	if text == "" {
+		// なければ終わり
+		return "", err
+	}
 
+	// slackへPOST
 	req, err := http.NewRequest(
 		"POST",
-		"https://hooks.slack.com/services/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",
-		bytes.NewBuffer([]byte(jsonStr)),
+		conf.Url,
+		bytes.NewBuffer([]byte(text)),
 	)
 	if err != nil {
 		return text, err
@@ -49,5 +59,31 @@ func Run() (string, error) {
 	defer resp.Body.Close()
 
 	return text, nil
+}
 
+// slackの設定ファイルを読み込む
+func getSlackConfig() (*slackConfig, error) {
+	o := slackConfig{}
+	buf, err := ioutil.ReadFile("configs/slack.yml")
+	if err != nil {
+		return &o, err
+	}
+
+	err = yaml.Unmarshal(buf, &o)
+	if err != nil {
+		return &o, err
+	}
+	return &o, nil
+}
+
+// slackに投げるテキストを生成する
+func getPostText(n, c string) string {
+	t := getMessage()
+	if t == "" {
+		log.Print("Infomartion is not updated.")
+		return ""
+	}
+	log.Printf("Infomartion is updated. Text:%s", t)
+
+	return `{"channel":"` + c + `","username":"` + n + `","text":"` + t + `"}`
 }
