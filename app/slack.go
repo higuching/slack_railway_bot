@@ -12,9 +12,9 @@ import (
 
 // slackの設定ファイル
 type slackConfig struct {
-	Url     string `yaml:"url"`
-	Channel string `yaml:"channel"`
-	Nmae    string `yaml:"name"`
+	url     string `yaml:"url"`
+	channel string `yaml:"channel"`
+	nmae    string `yaml:"name"`
 }
 
 // mainから呼ばれるコアとなる関数
@@ -42,7 +42,7 @@ func Run() (string, error) {
 	// slackへPOST
 	req, err := http.NewRequest(
 		"POST",
-		conf.Url,
+		conf.url,
 		bytes.NewBuffer([]byte(text)),
 	)
 	if err != nil {

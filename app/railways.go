@@ -13,18 +13,18 @@ import (
 
 // 路線情報を取得する設定
 type railwaysConfig struct {
-	Url    string   `yaml:"url"`
+	URL    string   `yaml:"url"`
 	Filter bool     `yaml:"filter"`
 	Lines  []string `yaml:"lines"`
 }
 
 // 取得した路線情報
 type lineInfo struct {
-	Id      int
+	ID      int
 	Name    string
 	Outline string
 	Details string
-	Url     string
+	URL     string
 }
 
 // 路線情報の設定ファイルを取得する
@@ -66,7 +66,7 @@ func getMessage() string {
 	db := db.NewRailways()
 
 	// トラブルが発生している関東の路線を取得
-	troubleLines := getTroubleLines(o.Url)
+	troubleLines := getTroubleLines(o.URL)
 	if troubleLines == nil {
 		// トラブル無し
 		rs := db.GetAll()
@@ -88,12 +88,12 @@ func getMessage() string {
 			// 対象路線に含まれる名前じゃない
 			continue
 		}
-		if db.Get(tal.Id) {
+		if db.Get(tal.ID) {
 			// レコードあるならすでに登録済み
 			continue
 		}
-		_ = db.Insert(tal.Id, tal.Name)
-		msg = msg + tal.Name + "で *" + tal.Outline + "* が発生しました。 " + tal.Url + "" + "\n"
+		_ = db.Insert(tal.ID, tal.Name)
+		msg = msg + tal.Name + "で *" + tal.Outline + "* が発生しました。 " + tal.URL + "" + "\n"
 	}
 
 	// トラブルが解消した路線情報を取得
@@ -102,7 +102,7 @@ func getMessage() string {
 		for _, r := range rs {
 			isFind := false
 			for _, tal := range troubleLines {
-				if r.ID == tal.Id {
+				if r.ID == tal.ID {
 					isFind = true
 				}
 			}
@@ -153,11 +153,11 @@ func getTroubleLines(u string) []lineInfo {
 				panic(err2)
 			}
 			li = append(li, lineInfo{
-				Id:      id,
+				ID:      id,
 				Name:    ss.Children().Find("a").Text(),
 				Outline: ss.Children().Find("span.colTrouble").Text(),
 				Details: ss.Children().Next().Next().Text(),
-				Url:     href,
+				URL:     href,
 			})
 		})
 	})
