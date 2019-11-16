@@ -7,21 +7,21 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// テーブル名
-const TABLE_RAILWAYS_NAME = "TB_RAILWAYS"
+// TableRailwaysName テーブル名
+const TableRailwaysName = "TB_RAILWAYS"
 
-// スキーマ
+// TRailWays スキーマ
 type TRailWays struct {
 	ID   int
 	NAME string
 }
 
-// インスタンス的なもの
+// RailwaysDb インスタンス的なもの
 type RailwaysDb struct {
 	DB *sql.DB
 }
 
-// データベースのコネクションを開く
+// NewRailways データベースのコネクションを開く
 func NewRailways() *RailwaysDb {
 	db, err := sql.Open("sqlite3", "/tmp/railways.db")
 	if err != nil {
@@ -32,10 +32,10 @@ func NewRailways() *RailwaysDb {
 	return &o
 }
 
-// テーブル作成
+// Create テーブル作成
 func (r *RailwaysDb) Create() error {
 	_, err := r.DB.Exec(
-		`CREATE TABLE IF NOT EXISTS "` + TABLE_RAILWAYS_NAME + `" ("ID" INTEGER PRIMARY KEY, "NAME" VARCHAR(255))`,
+		`CREATE TABLE IF NOT EXISTS "` + TableRailwaysName + `" ("ID" INTEGER PRIMARY KEY, "NAME" VARCHAR(255))`,
 	)
 	if err != nil {
 		return err
@@ -43,10 +43,10 @@ func (r *RailwaysDb) Create() error {
 	return nil
 }
 
-// レコード1件取得(存在していたらTRUEを返す)
+// Get レコード1件取得(存在していたらTRUEを返す)
 func (r *RailwaysDb) Get(id int) bool {
 	row := r.DB.QueryRow(
-		`SELECT ID FROM `+TABLE_RAILWAYS_NAME+` WHERE ID=?`,
+		`SELECT ID FROM `+TableRailwaysName+` WHERE ID=?`,
 		id,
 	)
 
@@ -65,10 +65,10 @@ func (r *RailwaysDb) Get(id int) bool {
 	return false
 }
 
-// レコード全件取得
+// GetAll レコード全件取得
 func (r *RailwaysDb) GetAll() []TRailWays {
 	rows, err := r.DB.Query(
-		`SELECT ID, NAME FROM ` + TABLE_RAILWAYS_NAME,
+		`SELECT ID, NAME FROM ` + TableRailwaysName,
 	)
 	if err != nil {
 		panic(err)
@@ -86,10 +86,10 @@ func (r *RailwaysDb) GetAll() []TRailWays {
 	return rs
 }
 
-// レコード作成
+// Insert レコード作成
 func (r *RailwaysDb) Insert(id int, name string) error {
 	_, err := r.DB.Exec(
-		`INSERT INTO "`+TABLE_RAILWAYS_NAME+`" ("ID", "NAME") VALUES(?, ?)`,
+		`INSERT INTO "`+TableRailwaysName+`" ("ID", "NAME") VALUES(?, ?)`,
 		id,
 		name,
 	)
@@ -99,10 +99,10 @@ func (r *RailwaysDb) Insert(id int, name string) error {
 	return nil
 }
 
-// レコード削除
+// Delete レコード削除
 func (r *RailwaysDb) Delete(id int) error {
 	_, err := r.DB.Exec(
-		`DELETE FROM "`+TABLE_RAILWAYS_NAME+`" WHERE ID=?`,
+		`DELETE FROM "`+TableRailwaysName+`" WHERE ID=?`,
 		id,
 	)
 	if err != nil {
@@ -111,10 +111,10 @@ func (r *RailwaysDb) Delete(id int) error {
 	return nil
 }
 
-// レコード全削除
+// DeleteAll レコード全削除
 func (r *RailwaysDb) DeleteAll() error {
 	_, err := r.DB.Exec(
-		`DELETE FROM "` + TABLE_RAILWAYS_NAME + `"`,
+		`DELETE FROM "` + TableRailwaysName + `"`,
 	)
 	if err != nil {
 		return err
