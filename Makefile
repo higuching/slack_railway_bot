@@ -12,8 +12,7 @@ OS_NAME := $(shell uname -s | tr A-Z a-z)
 
 all: build
 arm:
-	CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ \
-    CGO_ENABLED=1 GOOS=linux GOARCH=arm ${GOBUILD} -o ./bin/${BINARY_ARM} -v
+	CGO_ENABLED=1 GOOS=linux GOARCH=arm ${GOBUILD} -o ./bin/${BINARY_ARM} -v
 
 build:
 	GOOS=darwin GOARCH=amd64 ${GOBUILD} -o ./bin/${BINARY_NAME} -v
