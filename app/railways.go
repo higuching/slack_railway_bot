@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 
+	// トラブルが発生している関東の路線情報を格納するDB
 	db "github.com/higuching/slack_railway_bot/db"
 
 	"github.com/PuerkitoBio/goquery"
