@@ -12,12 +12,12 @@ import (
 
 // slackの設定ファイル
 type slackConfig struct {
-	url     string `yaml:"url"`
-	channel string `yaml:"channel"`
-	nmae    string `yaml:"name"`
+	URL     string `yaml:"url"`
+	CHANNEL string `yaml:"channel"`
+	NAME    string `yaml:"name"`
 }
 
-// mainから呼ばれるコアとなる関数
+// Run mainから呼ばれるコアとなる関数
 func Run() (string, error) {
 	// DBの準備
 	err := db.NewRailways().Create()
@@ -33,7 +33,7 @@ func Run() (string, error) {
 	}
 
 	// POSTするテキストの取得
-	text := getPostText(conf.Nmae, conf.Channel)
+	text := getPostText(conf.NAME, conf.CHANNEL)
 	if text == "" {
 		// なければ終わり
 		return "", err
