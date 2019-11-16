@@ -19,5 +19,5 @@ build:
 
 clean:
 	$(GOCLEAN)
-	rm -f $(BINARY_NAME)
-	rm -f $(BINARY_UNIX)
+	rm -f ./bin/$(BINARY_NAME)
+	rm -f ./bin/$(BINARY_ARM)
