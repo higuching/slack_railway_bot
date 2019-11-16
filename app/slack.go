@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	db "github.com/higuching/slack_bot/db"
+	db "github.com/higuching/slack_railway_bot/db"
 	yaml "gopkg.in/yaml.v2"
 )
 

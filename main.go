@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/higuching/slack_bot/app"
+	"github.com/higuching/slack_railway_bot/app"
 )
 
 func railways() (string, error) {
