@@ -80,10 +80,10 @@ func getSlackConfig() (*slackConfig, error) {
 func getPostText(n, c string) string {
 	t := getMessage()
 	if t == "" {
-		log.Print("Infomartion is not updated.")
+		fmt.Println("Infomartion is not updated.")
 		return ""
 	}
-	log.Printf("Infomartion is updated. Text:%s", t)
+	fmt.Println("Infomartion is updated. Text:" + str(t))
 
 	return `{"channel":"` + c + `","username":"` + n + `","text":"` + t + `"}`
 }
