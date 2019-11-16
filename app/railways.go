@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strconv"
 
-	db "github.com/higuching/slack_bot/db"
+	db "github.com/higuching/slack_railway_bot/db"
 
 	"github.com/PuerkitoBio/goquery"
 	yaml "gopkg.in/yaml.v2"
