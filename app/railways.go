@@ -12,14 +12,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// 路線情報を取得する設定
+// railwaysConfig 路線情報を取得する設定
 type railwaysConfig struct {
 	URL    string   `yaml:"url"`
 	FILTER bool     `yaml:"filter"`
 	LINES  []string `yaml:"lines"`
 }
 
-// 取得した路線情報
+// lineInfo 取得した路線情報
 type lineInfo struct {
 	ID      int
 	NAME    string
@@ -28,7 +28,7 @@ type lineInfo struct {
 	URL     string
 }
 
-// 路線情報の設定ファイルを取得する
+// getRailwaysConfig 路線情報の設定ファイルを取得する
 func getRailwaysConfig() (*railwaysConfig, error) {
 	o := railwaysConfig{}
 
@@ -44,7 +44,7 @@ func getRailwaysConfig() (*railwaysConfig, error) {
 	return &o, nil
 }
 
-// HTMLをスクレイピングして路線情報のテキストを取得する
+// getMessage HTMLをスクレイピングして路線情報のテキストを取得する
 func getMessage() string {
 
 	msg := ""
@@ -122,7 +122,7 @@ func getMessage() string {
 	return msg
 }
 
-// 必要な路線か判定
+// containsLine 必要な路線か判定
 func (l *lineInfo) containsLine(t *railwaysConfig) bool {
 	for _, name := range t.LINES {
 		if l.NAME == name {
@@ -132,7 +132,7 @@ func (l *lineInfo) containsLine(t *railwaysConfig) bool {
 	return false
 }
 
-// 遅延している路線を取得
+// getTroubleLines 遅延している路線を取得
 func getTroubleLines(u string) []lineInfo {
 	doc, err := goquery.NewDocument(u)
 	if err != nil {
