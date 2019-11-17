@@ -15,16 +15,16 @@ import (
 // railwaysConfig 路線情報を取得する設定
 type railwaysConfig struct {
 	URL    string   `yaml:"url"`
-	FILTER bool     `yaml:"filter"`
-	LINES  []string `yaml:"lines"`
+	Filter bool     `yaml:"filter"`
+	Lines  []string `yaml:"lines"`
 }
 
 // lineInfo 取得した路線情報
 type lineInfo struct {
 	ID      int
-	NAME    string
-	OUTLINE string
-	DETAILS string
+	Name    string
+	Outline string
+	Details string
 	URL     string
 }
 
@@ -53,12 +53,12 @@ func getMessage() string {
 		panic(err)
 	}
 
-	if o.FILTER == false {
+	if o.Filter == false {
 		// フィルター設定がOFFになっている
 		return msg
 	}
 
-	if len(o.LINES) == 0 {
+	if len(o.Lines) == 0 {
 		// 対象路線が設定されていない
 		return msg
 	}
@@ -93,8 +93,8 @@ func getMessage() string {
 			// レコードあるならすでに登録済み
 			continue
 		}
-		_ = db.Insert(tal.ID, tal.NAME)
-		msg = msg + tal.NAME + "で *" + tal.OUTLINE + "* が発生しました。 " + tal.URL + "" + "\n"
+		_ = db.Insert(tal.ID, tal.Name)
+		msg = msg + tal.Name + "で *" + tal.Outline + "* が発生しました。 " + tal.URL + "" + "\n"
 	}
 
 	// トラブルが解消した路線情報を取得
@@ -124,8 +124,8 @@ func getMessage() string {
 
 // containsLine 必要な路線か判定
 func (l *lineInfo) containsLine(t *railwaysConfig) bool {
-	for _, name := range t.LINES {
-		if l.NAME == name {
+	for _, name := range t.Lines {
+		if l.Name == name {
 			return true
 		}
 	}
@@ -155,9 +155,9 @@ func getTroubleLines(u string) []lineInfo {
 			}
 			li = append(li, lineInfo{
 				ID:      id,
-				NAME:    ss.Children().Find("a").Text(),
-				OUTLINE: ss.Children().Find("span.colTrouble").Text(),
-				DETAILS: ss.Children().Next().Next().Text(),
+				Name:    ss.Children().Find("a").Text(),
+				Outline: ss.Children().Find("span.colTrouble").Text(),
+				Details: ss.Children().Next().Next().Text(),
 				URL:     href,
 			})
 		})

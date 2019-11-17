@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,8 +14,8 @@ import (
 // slackの設定ファイル
 type slackConfig struct {
 	URL     string `yaml:"url"`
-	CHANNEL string `yaml:"channel"`
-	NAME    string `yaml:"name"`
+	Channel string `yaml:"channel"`
+	Name    string `yaml:"name"`
 }
 
 // Run mainから呼ばれるコアとなる関数
@@ -83,7 +84,7 @@ func getPostText(n, c string) string {
 		fmt.Println("Infomartion is not updated.")
 		return ""
 	}
-	fmt.Println("Infomartion is updated. Text:" + str(t))
+	fmt.Printf("Infomartion is updated. Text:%s" , t)
 
 	return `{"channel":"` + c + `","username":"` + n + `","text":"` + t + `"}`
 }
