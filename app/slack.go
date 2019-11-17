@@ -42,7 +42,7 @@ func Run() (string, error) {
 	// slackへPOST
 	req, err := http.NewRequest(
 		"POST",
-		conf.url,
+		conf.URL,
 		bytes.NewBuffer([]byte(text)),
 	)
 	if err != nil {

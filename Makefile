@@ -11,6 +11,9 @@ BINARY_ARM=${BINARY_NAME}_arm
 OS_NAME := $(shell uname -s | tr A-Z a-z)
 
 all: build
+
+# 現在、MacOSでのクロスコンパイルができない状況なので、armで動かす場合はarmの環境でビルド推奨
+# ToDo: Macでのクロスコンパイル方法を調べて動くようにする
 arm:
 	CGO_ENABLED=1 GOOS=linux GOARCH=arm ${GOBUILD} -o ./bin/${BINARY_ARM} -v
 
@@ -23,5 +26,6 @@ clean:
 	rm -f ./bin/$(BINARY_ARM)
 
 # 今はテスト書いてないので動かない
+# ToDo: テスト書く
 # test:
 # 	$(GOCMD) test
