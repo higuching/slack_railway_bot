@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,12 +13,12 @@ import (
 
 // slackの設定ファイル
 type slackConfig struct {
-	Url     string `yaml:"url"`
+	URL     string `yaml:"url"`
 	Channel string `yaml:"channel"`
-	Nmae    string `yaml:"name"`
+	Name    string `yaml:"name"`
 }
 
-// mainから呼ばれるコアとなる関数
+// Run mainから呼ばれるコアとなる関数
 func Run() (string, error) {
 	// DBの準備
 	err := db.NewRailways().Create()
@@ -33,7 +34,7 @@ func Run() (string, error) {
 	}
 
 	// POSTするテキストの取得
-	text := getPostText(conf.Nmae, conf.Channel)
+	text := getPostText(conf.NAME, conf.CHANNEL)
 	if text == "" {
 		// なければ終わり
 		return "", err
@@ -42,7 +43,7 @@ func Run() (string, error) {
 	// slackへPOST
 	req, err := http.NewRequest(
 		"POST",
-		conf.Url,
+		conf.URL,
 		bytes.NewBuffer([]byte(text)),
 	)
 	if err != nil {
@@ -80,10 +81,10 @@ func getSlackConfig() (*slackConfig, error) {
 func getPostText(n, c string) string {
 	t := getMessage()
 	if t == "" {
-		log.Print("Infomartion is not updated.")
+		fmt.Println("Infomartion is not updated.")
 		return ""
 	}
-	log.Printf("Infomartion is updated. Text:%s", t)
+	fmt.Printf("Infomartion is updated. Text:%s", t)
 
 	return `{"channel":"` + c + `","username":"` + n + `","text":"` + t + `"}`
 }

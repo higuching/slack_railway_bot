@@ -5,29 +5,30 @@ import (
 	"regexp"
 	"strconv"
 
+	// トラブルが発生している関東の路線情報を格納するDB
 	db "github.com/higuching/slack_railway_bot/db"
 
 	"github.com/PuerkitoBio/goquery"
 	yaml "gopkg.in/yaml.v2"
 )
 
-// 路線情報を取得する設定
+// railwaysConfig 路線情報を取得する設定
 type railwaysConfig struct {
-	Url    string   `yaml:"url"`
+	URL    string   `yaml:"url"`
 	Filter bool     `yaml:"filter"`
 	Lines  []string `yaml:"lines"`
 }
 
-// 取得した路線情報
+// lineInfo 取得した路線情報
 type lineInfo struct {
-	Id      int
+	ID      int
 	Name    string
 	Outline string
 	Details string
-	Url     string
+	URL     string
 }
 
-// 路線情報の設定ファイルを取得する
+// getRailwaysConfig 路線情報の設定ファイルを取得する
 func getRailwaysConfig() (*railwaysConfig, error) {
 	o := railwaysConfig{}
 
@@ -43,7 +44,7 @@ func getRailwaysConfig() (*railwaysConfig, error) {
 	return &o, nil
 }
 
-// HTMLをスクレイピングして路線情報のテキストを取得する
+// getMessage HTMLをスクレイピングして路線情報のテキストを取得する
 func getMessage() string {
 
 	msg := ""
@@ -66,7 +67,7 @@ func getMessage() string {
 	db := db.NewRailways()
 
 	// トラブルが発生している関東の路線を取得
-	troubleLines := getTroubleLines(o.Url)
+	troubleLines := getTroubleLines(o.URL)
 	if troubleLines == nil {
 		// トラブル無し
 		rs := db.GetAll()
@@ -88,12 +89,12 @@ func getMessage() string {
 			// 対象路線に含まれる名前じゃない
 			continue
 		}
-		if db.Get(tal.Id) {
+		if db.Get(tal.ID) {
 			// レコードあるならすでに登録済み
 			continue
 		}
-		_ = db.Insert(tal.Id, tal.Name)
-		msg = msg + tal.Name + "で *" + tal.Outline + "* が発生しました。 " + tal.Url + "" + "\n"
+		_ = db.Insert(tal.ID, tal.Name)
+		msg = msg + tal.Name + "で *" + tal.Outline + "* が発生しました。 " + tal.URL + "" + "\n"
 	}
 
 	// トラブルが解消した路線情報を取得
@@ -102,7 +103,7 @@ func getMessage() string {
 		for _, r := range rs {
 			isFind := false
 			for _, tal := range troubleLines {
-				if r.ID == tal.Id {
+				if r.ID == tal.ID {
 					isFind = true
 				}
 			}
@@ -121,7 +122,7 @@ func getMessage() string {
 	return msg
 }
 
-// 必要な路線か判定
+// containsLine 必要な路線か判定
 func (l *lineInfo) containsLine(t *railwaysConfig) bool {
 	for _, name := range t.Lines {
 		if l.Name == name {
@@ -131,7 +132,7 @@ func (l *lineInfo) containsLine(t *railwaysConfig) bool {
 	return false
 }
 
-// 遅延している路線を取得
+// getTroubleLines 遅延している路線を取得
 func getTroubleLines(u string) []lineInfo {
 	doc, err := goquery.NewDocument(u)
 	if err != nil {
@@ -153,11 +154,11 @@ func getTroubleLines(u string) []lineInfo {
 				panic(err2)
 			}
 			li = append(li, lineInfo{
-				Id:      id,
+				ID:      id,
 				Name:    ss.Children().Find("a").Text(),
 				Outline: ss.Children().Find("span.colTrouble").Text(),
 				Details: ss.Children().Next().Next().Text(),
-				Url:     href,
+				URL:     href,
 			})
 		})
 	})

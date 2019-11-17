@@ -1,8 +1,0 @@
-url: "https://transit.yahoo.co.jp/traininfo/area/4/"
-filter: true
-lines:
-  - "山手線"
-  - "埼京川越線[大崎～川越]"
-  - "都営三田線"
-  - "東急田園都市線"
-  - "東京メトロ副都心線"
