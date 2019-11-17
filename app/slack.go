@@ -84,7 +84,7 @@ func getPostText(n, c string) string {
 		fmt.Println("Infomartion is not updated.")
 		return ""
 	}
-	fmt.Printf("Infomartion is updated. Text:%s" , t)
+	fmt.Printf("Infomartion is updated. Text:%s", t)
 
 	return `{"channel":"` + c + `","username":"` + n + `","text":"` + t + `"}`
 }
